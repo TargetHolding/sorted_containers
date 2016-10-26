@@ -210,10 +210,23 @@ class SortedList(MutableSequence):
         if pos == len(_maxes):
             return False
 
-        _lists = self._lists
-        idx = bisect_left(_lists[pos], val)
+        _lists_pos = self._lists[pos]
+        idx = bisect_left(_lists_pos, val)
 
-        return _lists[pos][idx] == val
+        if _lists_pos[idx] == val:
+            return True
+        else:
+            _lists_pos_len = len(_lists_pos)
+            idx += 1
+            while idx < _lists_pos_len:
+                cur = _lists_pos[idx]
+                if cur == val:
+                    return True
+                elif cur > val:
+                    return False
+                else:
+                    idx += 1
+            return False
 
     def discard(self, val):
         """
@@ -231,11 +244,23 @@ class SortedList(MutableSequence):
         if pos == len(_maxes):
             return
 
-        _lists = self._lists
-        idx = bisect_left(_lists[pos], val)
+        _lists_pos = self._lists[pos]
+        idx = bisect_left(_lists_pos, val)
 
-        if _lists[pos][idx] == val:
+        if _lists_pos[idx] == val:
             self._delete(pos, idx)
+        else:
+            _lists_pos_len = len(_lists_pos)
+            idx += 1
+            while idx < _lists_pos_len:
+                cur = _lists_pos[idx]
+                if cur == val:
+                    self._delete(pos, idx)
+                    break
+                elif cur > val:
+                    break
+                else:
+                    idx += 1
 
     def remove(self, val):
         """
@@ -253,13 +278,23 @@ class SortedList(MutableSequence):
         if pos == len(_maxes):
             raise ValueError('{0} not in list'.format(repr(val)))
 
-        _lists = self._lists
-        idx = bisect_left(_lists[pos], val)
+        _lists_pos = self._lists[pos]
+        idx = bisect_left(_lists_pos, val)
 
-        if _lists[pos][idx] == val:
+        if _lists_pos[idx] == val:
             self._delete(pos, idx)
         else:
-            raise ValueError('{0} not in list'.format(repr(val)))
+            _lists_pos_len = len(_lists_pos)
+            idx += 1
+            while idx < _lists_pos_len:
+                cur = _lists_pos[idx]
+                if cur == val:
+                    self._delete(pos, idx)
+                    break
+                elif cur > val:
+                    raise ValueError('{0} not in list'.format(repr(val)))
+                else:
+                    idx += 1
 
     def _delete(self, pos, idx):
         """Delete the item at the given (pos, idx).
@@ -1252,11 +1287,18 @@ class SortedList(MutableSequence):
         if pos_left == len(_maxes):
             raise ValueError('{0} is not in list'.format(repr(val)))
 
-        _lists = self._lists
-        idx_left = bisect_left(_lists[pos_left], val)
+        _pos_left_list = self._lists[pos_left]
+        idx_left = bisect_left(_pos_left_list, val)
 
-        if _lists[pos_left][idx_left] != val:
-            raise ValueError('{0} is not in list'.format(repr(val)))
+        if _pos_left_list[idx_left] != val:
+            _pos_left_list_len = len(_pos_left_list)
+            while idx_left < _pos_left_list_len:
+                idx_left+=1
+                cur = _pos_left_list[idx_left]
+                if cur == val:
+                    break
+                elif cur > val:
+                    raise ValueError('{0} is not in list'.format(repr(val)))
 
         stop -= 1
         left = self._loc(pos_left, idx_left)
